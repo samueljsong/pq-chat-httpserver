@@ -1,0 +1,29 @@
+# Build folders
+bin/
+obj/
+
+# VS Code
+.vscode/
+
+# Rider / JetBrains
+.idea/
+
+# User files
+*.user
+*.suo
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment secrets
+appsettings.Development.json
+
+# Node (if you ever mix frontend)
+node_modules/
+
+# Package lock files (optional)
+package-lock.json
