@@ -34,4 +34,19 @@ public class UserService
         User user = await _userDatabase.CreateUserAsync(newUser);
         return user;
     }
+
+    public async Task<User?> LoginUser(string emailAddress, string password)
+    {
+        string inputHashedPassword = HashPassword(password);
+
+        var user = await _userDatabase.GetUserCredentialsAsync(emailAddress);
+
+        if (user is null)
+            return null;
+
+        if (Verify(password, user.HashedPassword))
+            return user;
+        else 
+            return null;
+    }
 }

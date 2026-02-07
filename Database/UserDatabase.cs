@@ -43,4 +43,52 @@ public class UserDatabase
             }
         }
     }
+
+    public async Task<User?> GetUserCredentialsAsync (string emailAddress)
+    {
+        string query = @"
+            SELECT user_id, first_name, last_name, email_address, hashed_password
+            FROM users
+            WHERE email_address = @EmailAddress;
+        ";
+
+        using (MySqlConnection connection = new MySqlConnection(_connectionString))
+        {
+            try
+            {
+                await connection.OpenAsync();
+
+                using var command = connection.CreateCommand();
+                
+                command.CommandText = query;
+                command.Parameters.AddWithValue( "EmailAddress", emailAddress);
+
+                using var reader = await command.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
+                {
+                    var user = new User
+                    (
+                        reader.GetString(0),
+                        reader.GetString(1),
+                        reader.GetString(2),
+                        reader.GetString(3),
+                        reader.GetString(4)
+                    );
+
+                    return user;
+                }
+                else
+                {
+                    Console.WriteLine($"No users with the email: {emailAddress}");
+                    return null;
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+                throw;
+            }
+        }
+    }
 }
