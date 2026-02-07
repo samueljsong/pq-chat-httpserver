@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using pq_chat_httpserver.Services;
+using pq_chat_httpserver.DTO;
 
 namespace pq_chat_httpserver.Controllers;
 
@@ -20,5 +21,19 @@ public class UserController : ControllerBase
         var result = _userService.GetAllUsers();
 
         return Ok(result);
+    }
+
+    [HttpPost("createUser")]
+    public async Task<IActionResult> CreateUser([FromBody] UserRegistrationRequest request)
+    {
+        await _userService.CreateUser
+        (
+            request.FirstName, 
+            request.LastName, 
+            request.EmailAddress, 
+            request.Password
+        );
+
+        return Ok();
     }
 }
