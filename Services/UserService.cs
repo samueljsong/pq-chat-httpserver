@@ -1,5 +1,6 @@
 using pq_chat_httpserver.Models;
 using pq_chat_httpserver.Database;
+using pq_chat_httpserver.Services;
 using static BCrypt.Net.BCrypt;
 
 namespace pq_chat_httpserver.Services;
@@ -7,9 +8,11 @@ namespace pq_chat_httpserver.Services;
 public class UserService
 {
     private readonly UserDatabase _userDatabase;
-    public UserService(UserDatabase userDatabase)
+    private readonly JwtService   _jwtService;
+    public UserService(UserDatabase userDatabase, JwtService jwtService)
     {
         _userDatabase = userDatabase;
+        _jwtService   = jwtService;
     }
 
     public string GetAllUsers()
@@ -35,18 +38,18 @@ public class UserService
         return user;
     }
 
-    public async Task<User?> LoginUser(string emailAddress, string password)
+    public async Task<string?> LoginUser(string emailAddress, string password)
     {
-        string inputHashedPassword = HashPassword(password);
-
         var user = await _userDatabase.GetUserCredentialsAsync(emailAddress);
 
         if (user is null)
             return null;
 
-        if (Verify(password, user.HashedPassword))
-            return user;
-        else 
+        if (!Verify(password, user.HashedPassword))
             return null;
+
+        // issue JWT
+        var token = _jwtService.GenerateToken(user.UserId, user.EmailAddress);
+        return token;
     }
 }

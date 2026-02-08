@@ -15,14 +15,6 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
-    [HttpGet]
-    public IActionResult GetAllUsers()
-    {
-        var result = _userService.GetAllUsers();
-
-        return Ok(result);
-    }
-
     [HttpPost("createUser")]
     public async Task<IActionResult> CreateUser([FromBody] UserRegistrationRequest request)
     {
@@ -42,15 +34,15 @@ public class UserController : ControllerBase
     [HttpPost("loginUser")]
     public async Task<IActionResult> LoginUser([FromBody] UserLoginRequest request)
     {
-        var user = await _userService.LoginUser
+        var token = await _userService.LoginUser
         (
             request.EmailAddress,
             request.Password
         );
 
-        if (user is null)
-            return NoContent();
-        else
-            return Ok(user);
+        if (token == null)
+            return Unauthorized("Invalid email or password");
+
+        return Ok(new { token });
     }
 }
