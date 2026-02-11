@@ -10,8 +10,8 @@ public class UserDatabase
     public async Task<User> CreateUserAsync(User user)
     {
         string query = @"
-            INSERT INTO users (user_id, first_name, last_name, email_address, hashed_password)
-            VALUES (@UserId, @Firstname, @LastName, @EmailAddress, @HashedPassword);
+            INSERT INTO users (user_id, username, first_name, last_name, email_address, hashed_password)
+            VALUES (@UserId, @Username, @FirstName, @LastName, @EmailAddress, @HashedPassword);
         ";
 
         using (MySqlConnection connection = new MySqlConnection(_connectionString))
@@ -25,6 +25,7 @@ public class UserDatabase
                 {
                     command.CommandText = query;
                     command.Parameters.AddWithValue( "@UserId"        , user.UserId         );
+                    command.Parameters.AddWithValue( "@Username"      , user.Username       );
                     command.Parameters.AddWithValue( "@FirstName"     , user.FirstName      );
                     command.Parameters.AddWithValue( "@LastName"      , user.LastName       );
                     command.Parameters.AddWithValue( "@EmailAddress"  , user.EmailAddress   );
@@ -47,7 +48,7 @@ public class UserDatabase
     public async Task<User?> GetUserCredentialsAsync (string emailAddress)
     {
         string query = @"
-            SELECT user_id, first_name, last_name, email_address, hashed_password
+            SELECT user_id, username, first_name, last_name, email_address, hashed_password
             FROM users
             WHERE email_address = @EmailAddress;
         ";
@@ -73,7 +74,8 @@ public class UserDatabase
                         reader.GetString(1),
                         reader.GetString(2),
                         reader.GetString(3),
-                        reader.GetString(4)
+                        reader.GetString(4),
+                        reader.GetString(5)
                     );
 
                     return user;
@@ -90,5 +92,39 @@ public class UserDatabase
                 throw;
             }
         }
+    }
+
+    public async Task<List<UserSearchResult>> SearchUsersByUsernamePrefixAsync(string prefix, int limit)
+    {
+        const string sql = @"
+            SELECT user_id, username, first_name, last_name
+            FROM users
+            WHERE username LIKE CONCAT(@prefix, '%')
+            ORDER BY username
+            LIMIT @limit;
+        ";
+
+        var results = new List<UserSearchResult>();
+
+        using var connection = new MySqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        using var command = new MySqlCommand(sql, connection);
+        command.Parameters.AddWithValue("@prefix", prefix);
+        command.Parameters.AddWithValue("@limit", limit);
+
+        using var reader = await command.ExecuteReaderAsync();
+
+        while (await reader.ReadAsync())
+        {
+            results.Add(new UserSearchResult(
+                reader["user_id"].ToString(),
+                reader["username"].ToString(),
+                reader["first_name"].ToString(),
+                reader["last_name"].ToString()
+            ));
+        }
+
+        return results;
     }
 }

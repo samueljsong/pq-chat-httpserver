@@ -3,14 +3,16 @@ namespace pq_chat_httpserver.Models;
 public class User
 {
     public string UserId         {get;}
+    public string Username       {get;}
     public string FirstName      {get;}
     public string LastName       {get;}
     public string EmailAddress   {get;}
     public string HashedPassword {get;}
 
-    public User(string userId, string firstName, string lastName, string emailAddress, string hashedPassword)
+    public User(string userId, string username, string firstName, string lastName, string emailAddress, string hashedPassword)
     {
         UserId         = userId;
+        Username       = username;
         FirstName      = firstName;
         LastName       = lastName;
         EmailAddress   = emailAddress;

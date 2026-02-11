@@ -2,6 +2,7 @@ using pq_chat_httpserver.Models;
 using pq_chat_httpserver.Database;
 using pq_chat_httpserver.Services;
 using static BCrypt.Net.BCrypt;
+using System.Security.Cryptography.X509Certificates;
 
 namespace pq_chat_httpserver.Services;
 
@@ -20,7 +21,7 @@ public class UserService
         return "All Users in a string";
     }
 
-    public async Task<User> CreateUser(string firstName, string lastName, string emailAddress, string password)
+    public async Task<User> CreateUser(string username, string firstName, string lastName, string emailAddress, string password)
     {
         string userId         = Guid.NewGuid().ToString();
         string hashedPassword = HashPassword(password);
@@ -28,6 +29,7 @@ public class UserService
         var newUser = new User
         (
             userId, 
+            username,
             firstName, 
             lastName, 
             emailAddress, 
@@ -51,5 +53,15 @@ public class UserService
         // issue JWT
         var token = _jwtService.GenerateToken(user.UserId, user.EmailAddress);
         return token;
+    }
+
+    public async Task<List<UserSearchResult>> SearchUsersByUsernamePrefixAsync(string prefix, int limit = 20)
+    {
+        if (string.IsNullOrWhiteSpace(prefix))
+            return new List<UserSearchResult>();
+
+        prefix = prefix.Trim();
+
+        return await _userDatabase.SearchUsersByUsernamePrefixAsync(prefix, limit);
     }
 }

@@ -22,6 +22,7 @@ public class UserController : ControllerBase
 
         await _userService.CreateUser
         (
+            request.Username,
             request.FirstName, 
             request.LastName, 
             request.EmailAddress, 
@@ -44,5 +45,12 @@ public class UserController : ControllerBase
             return Unauthorized("Invalid email or password");
 
         return Ok(new { token });
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> Search([FromQuery] string username, [FromQuery] int limit = 20)
+    {
+        var results = await _userService.SearchUsersByUsernamePrefixAsync(username, limit);
+        return Ok(results);
     }
 }
