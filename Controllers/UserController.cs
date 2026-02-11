@@ -19,17 +19,24 @@ public class UserController : ControllerBase
     public async Task<IActionResult> CreateUser([FromBody] UserRegistrationRequest request)
     {
         Console.WriteLine(request);
+        try
+        {
+            await _userService.CreateUser
+            (
+                request.Username,
+                request.FirstName, 
+                request.LastName, 
+                request.EmailAddress, 
+                request.Password
+            );
 
-        await _userService.CreateUser
-        (
-            request.Username,
-            request.FirstName, 
-            request.LastName, 
-            request.EmailAddress, 
-            request.Password
-        );
-
-        return Ok();
+            return Ok();    
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception);
+            return StatusCode(500, "Server error");
+        }
     }
 
     [HttpPost("loginUser")]

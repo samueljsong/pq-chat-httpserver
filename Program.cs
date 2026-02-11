@@ -12,9 +12,14 @@ using pq_chat_httpserver.Database;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+// Services
 builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<UserDatabase>();
+builder.Services.AddScoped<FriendshipService>();
 builder.Services.AddScoped<JwtService>();
+
+// Databases
+builder.Services.AddScoped<UserDatabase>();
+builder.Services.AddScoped<FriendshipDatabase>();
 
 // WebSocket/Gateway services
 builder.Services.Configure<TcpOptions>(builder.Configuration.GetSection("RealtimeTcp"));
