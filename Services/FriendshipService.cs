@@ -38,6 +38,12 @@ public class FriendshipService
         return await _friendshipDatabase.GetPendingRequestsAsync(userId);
     }
 
+    public async Task AcceptFriendRequestAsync(string friendshipId, string userId)
+    {
+        await _friendshipDatabase.AcceptFriendRequestAsync(friendshipId, userId);
+    }
+
+
     private static (string low, string high) OrderPair(string a, string b)
     {
         return string.CompareOrdinal(a, b) < 0 ? (a, b) : (b, a);

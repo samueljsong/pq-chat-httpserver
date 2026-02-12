@@ -15,11 +15,13 @@ builder.Services.AddControllers();
 // Services
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<FriendshipService>();
+builder.Services.AddScoped<ConversationService>();
 builder.Services.AddScoped<JwtService>();
 
 // Databases
 builder.Services.AddScoped<UserDatabase>();
 builder.Services.AddScoped<FriendshipDatabase>();
+builder.Services.AddScoped<ConversationDatabase>();
 
 // WebSocket/Gateway services
 builder.Services.Configure<TcpOptions>(builder.Configuration.GetSection("RealtimeTcp"));

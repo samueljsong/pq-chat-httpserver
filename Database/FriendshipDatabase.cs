@@ -281,4 +281,24 @@ public class FriendshipDatabase
         return results;
     }
 
+    public async Task AcceptFriendRequestAsync(string friendshipId, string userId)
+    {
+        await using var connection = new MySqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        const string query = @"
+            UPDATE sys.friendships
+            SET status = 'ACCEPTED',
+                responded_at = NOW()
+            WHERE friendship_id = @id
+            AND status = 'PENDING';";
+
+        await using var command = new MySqlCommand(query, connection);
+
+        command.Parameters.AddWithValue("@id", friendshipId);
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+
 }

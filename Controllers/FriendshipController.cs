@@ -4,6 +4,7 @@ using System.Security.Claims;
 
 using pq_chat_httpserver.DTO;
 using pq_chat_httpserver.Services;
+using System.Security.Cryptography.X509Certificates;
 
 namespace pq_chat_httpserver.Controllers;
 
@@ -81,5 +82,25 @@ public class FriendshipController : ControllerBase
         var pendingFriendRequestList = await _friendshipService.GetPendingFriendRequests(userId);
 
         return Ok(pendingFriendRequestList);
+    }
+
+    [HttpPost("accept/{friendshipId}")]
+    public async Task<IActionResult> AcceptFriendRequest(string friendshipId)
+    {
+        try
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+                return Unauthorized();
+
+            await _friendshipService.AcceptFriendRequestAsync(friendshipId, userId);
+
+            return Ok();
+        }
+        catch (Exception exception)
+        {
+            return BadRequest(exception.Message);
+        }
     }
 }
