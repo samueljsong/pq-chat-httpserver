@@ -12,6 +12,8 @@ public static class RealtimeGatewayEndpoint
 
     private static async Task HandleAsync(HttpContext context, GatewayService gateway, TokenValidator validator)
     {
+        Console.WriteLine("WS CONNECTED");
+
         if (!context.WebSockets.IsWebSocketRequest)
         {
             context.Response.StatusCode = 400;
@@ -19,34 +21,18 @@ public static class RealtimeGatewayEndpoint
             return;
         }
 
-        var token = context.Request.Query["token"].ToString();
-        if (string.IsNullOrWhiteSpace(token))
-        {
-            context.Response.StatusCode = 401;
-            await context.Response.WriteAsync("Missing token.");
-            return;
-        }
-
-        string userId;
-        try
-        {
-            userId = validator.ValidateAndGetUserId(token);
-        }
-        catch
-        {
-            context.Response.StatusCode = 401;
-            await context.Response.WriteAsync("Invalid token.");
-            return;
-        }
+        string userId = "test-user"; // 👈 temporary test
 
         using var ws = await context.WebSockets.AcceptWebSocketAsync();
-        await gateway.BridgeAsync(ws, userId, context.RequestAborted);
 
-        try
+        Console.WriteLine("WebSocket accepted — staying open");
+
+        // keep socket alive forever (test)
+        while (ws.State == WebSocketState.Open)
         {
-            if (ws.State is WebSocketState.Open or WebSocketState.CloseReceived)
-                await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+            await Task.Delay(1000);
         }
-        catch { }
+
     }
+
 }
